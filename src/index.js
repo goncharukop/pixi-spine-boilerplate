@@ -115,16 +115,21 @@ app.loader
         startButton.drawRect(0,0,180,50);
         startButton.x = 20;
         startButton.y = 450;
- 
+//Start pause button
         app.stage.addChild(startButton);
         startButton.buttonMode = true;
         startButton.interactive = true;
+
+        let onPauseNow = true;
         startButton.addListener('pointerdown', () => {
-          
+            onPauseNow
+                ? person.state.timeScale = 0
+                : person.state.timeScale = 1;
+
+            onPauseNow = !onPauseNow;
         });
 
-
-        //style text
+//style text
         const styleTitleText = new PIXI.TextStyle({
             fontFamily: 'Helvetica',
             fontSize: 36,
@@ -189,6 +194,84 @@ app.loader
             skeleton.setSkinByName(skinName);
         }
 
-        app.start();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+//slider
+        const slider = app.stage.addChild(
+            new PIXI.Graphics()
+                .beginFill(0xffffff)
+                .drawRect(0, 0, 200, 3,)
+                .endFill(),
+        );
+
+        slider.position.set(275, 475);
+
+        slider
+            .beginFill(0xffffff, 0.1)
+            .drawRect( -10, -10, 220, 20)
+            .endFill();
+
+        slider.interactive = true;
+
+
+        const handle = slider.addChild(
+            new PIXI.Graphics()
+                .beginFill(0xffffff)
+                .drawCircle(0, 0, 8)
+                .endFill(),
+        );
+
+        handle.interactive = true;
+        handle.position.set(0, 0);
+        handle.addEventListener('pointerdown', onDragStart);
+        handle.addEventListener('pointerup', onDragEnd);
+        handle.addEventListener('pointerupoutside', onDragEnd);
+
+
+        function onDragStart(e) {
+          app.stage.interactive = true;
+          app.stage.addEventListener('pointermove', onDrag);
+        }
+      // Stop dragging feedback once the handle is released.
+        function onDragEnd(e) {
+          app.stage.interactive = false;
+          app.stage.removeEventListener('pointermove', onDrag);
+        }
+
+        // Update the handle's position & bunny's scale when the handle is moved.
+        function onDrag(e) {
+          // Set handle x-position to match pointer
+          handle.position.x = Math.max(
+              0,
+              Math.min(
+                  slider.toLocal(e.global).x,
+                  0
+              )
+          );
+          onHandleMoved();
+        }
+
+        function onHandleMoved() {
+          person.state.timeScale = handle.position.x / 100;
+        }
+
+
+        app.start( );
     });
 
